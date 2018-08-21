@@ -126,7 +126,7 @@ final class Error implements JsonSerializable
             'id' => $this->id ? $this->id->toString() : null,
             'log' => Serialization::serializeOr($this->log),
             'timestamp' => Serialization::serializeOr($this->timestamp),
-            'transaction' => Serialization::serializeOr($this->transactionId),
+            'transaction' => $this->transactionId ? ['id' => Serialization::serializeOr($this->transactionId)] : null,
         ]);
     }
 }
