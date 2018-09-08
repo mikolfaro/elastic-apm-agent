@@ -21,6 +21,7 @@
     },
     "require": {
         "php": "^7.2",
+        "justinrainbow/json-schema": "^5.2",
         "php-http/async-client-implementation": "^1.0",
         "php-http/discovery": "^1.4",
         "php-http/httplug": "^1.1",
@@ -28,8 +29,8 @@
         "php-http/message-factory-implementation": "^1.0",
         "psr/cache": "^1.0",
         "psr/http-server-middleware": "^1.0",
-        "psr/log-implementation": "^1.0",
         "psr/log": "^1.0",
+        "psr/log-implementation": "^1.0",
         "ramsey/uuid": "^3.7"
     },
     "require-dev": {

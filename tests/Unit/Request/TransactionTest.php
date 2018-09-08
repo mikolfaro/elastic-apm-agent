@@ -12,6 +12,7 @@ use TechDeCo\ElasticApmAgent\Message\Timestamp;
 use TechDeCo\ElasticApmAgent\Message\Transaction as TransactionMessage;
 use TechDeCo\ElasticApmAgent\Message\VersionedName;
 use TechDeCo\ElasticApmAgent\Request\Transaction;
+use TechDeCo\ElasticApmAgent\Tests\MatchesSchema;
 
 final class TransactionTest extends TestCase
 {
@@ -87,5 +88,47 @@ final class TransactionTest extends TestCase
         ];
 
         self::assertEquals($expected, $actual);
+    }
+
+    public function testAllAgainstSchema(): void
+    {
+        $id      = Uuid::uuid4();
+        $date    = new Timestamp('2018-02-14T10:11:12.131');
+        $utcDate = (clone $date)->setTimezone(new \DateTimeZone('UTC'));
+        $message = (new TransactionMessage(13.2, $id, 'alloy', $date, 'zeta'));
+        $agent   = new VersionedName('thunderjaw', '1.0');
+        $service = new Service($agent, 'rockbreaker');
+        $process = new Process(213);
+        $system  = (new System())->atHost('hades');
+
+        $data = (new Transaction($service, $message))
+            ->inProcess($process)
+            ->onSystem($system)
+            ->jsonSerialize();
+
+        self::assertMatchesSchema($data, 'docs/spec/transactions/payload.json');
+    }
+
+    public function testFiltersEmptyAgainstSchema(): void
+    {
+        $id      = Uuid::uuid4();
+        $date    = new Timestamp('2018-02-14T10:11:12.131');
+        $utcDate = (clone $date)->setTimezone(new \DateTimeZone('UTC'));
+        $message = (new TransactionMessage(13.2, $id, 'alloy', $date, 'zeta'));
+        $agent   = new VersionedName('thunderjaw', '1.0');
+        $service = new Service($agent, 'rockbreaker');
+
+        $data = (new Transaction($service, $message))
+            ->jsonSerialize();
+
+        self::assertMatchesSchema($data, 'docs/spec/transactions/payload.json');
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public static function assertMatchesSchema($data, string $schemaPath): void
+    {
+        static::assertThat($data, new MatchesSchema($schemaPath));
     }
 }

@@ -12,6 +12,7 @@ use TechDeCo\ElasticApmAgent\Message\System;
 use TechDeCo\ElasticApmAgent\Message\Timestamp;
 use TechDeCo\ElasticApmAgent\Message\VersionedName;
 use TechDeCo\ElasticApmAgent\Request\Error;
+use TechDeCo\ElasticApmAgent\Tests\MatchesSchema;
 
 final class ErrorTest extends TestCase
 {
@@ -81,5 +82,47 @@ final class ErrorTest extends TestCase
         ];
 
         self::assertEquals($expected, $actual);
+    }
+
+    public function testAllAgainstSchema(): void
+    {
+        $agent   = new VersionedName('thunderjaw', '1.0');
+        $service = new Service($agent, 'rockbreaker');
+        $process = new Process(213);
+        $system  = (new System())->atHost('hades');
+        $date    = new Timestamp('2018-02-14T10:11:12.131');
+        $utcDate = (clone $date)->setTimezone(new \DateTimeZone('UTC'));
+        $log     = new Log('blabla');
+        $message = ErrorMessage::fromLog($log, $date);
+
+        $data = (new Error($service, $message))
+            ->inProcess($process)
+            ->onSystem($system)
+            ->jsonSerialize();
+
+        self::assertMatchesSchema($data, 'docs/spec/errors/payload.json');
+    }
+
+    public function testFiltersAgainstSchema(): void
+    {
+        $agent   = new VersionedName('thunderjaw', '1.0');
+        $service = new Service($agent, 'rockbreaker');
+        $date    = new Timestamp('2018-02-14T10:11:12.131');
+        $utcDate = (clone $date)->setTimezone(new \DateTimeZone('UTC'));
+        $log     = new Log('blabla');
+        $message = ErrorMessage::fromLog($log, $date);
+
+        $data = (new Error($service, $message))
+            ->jsonSerialize();
+
+        self::assertMatchesSchema($data, 'docs/spec/errors/payload.json');
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public static function assertMatchesSchema($data, string $schemaPath): void
+    {
+        static::assertThat($data, new MatchesSchema($schemaPath));
     }
 }

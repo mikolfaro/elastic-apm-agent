@@ -1,0 +1,26 @@
+{
+  "$id": "doc/spec/process.json",
+  "title": "Process",
+  "type": "object",
+  "properties": {
+    "pid": {
+      "type": ["integer"],
+      "description": "Process ID"
+    },
+    "ppid": {
+      "type": ["integer", "null"],
+      "description": "Parent process ID"
+    },
+    "title": {
+      "type": ["string"],
+      "description": "Process name"
+    },
+    "argv": {
+      "type": ["array", "null"],
+      "description": "Process arguments",
+      "items": {
+        "type": ["string"]
+      }
+    }
+  }
+}
