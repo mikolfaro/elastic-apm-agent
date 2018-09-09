@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace TechDeCo\ElasticApmAgent\Tests\Unit\Request;
 
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 use TechDeCo\ElasticApmAgent\Message\Error as ErrorMessage;
 use TechDeCo\ElasticApmAgent\Message\Log;
 use TechDeCo\ElasticApmAgent\Message\Process;
@@ -17,14 +18,16 @@ final class ErrorTest extends TestCase
 {
     public function testAll(): void
     {
-        $agent   = new VersionedName('thunderjaw', '1.0');
-        $service = new Service($agent, 'rockbreaker');
-        $process = new Process(213);
-        $system  = (new System())->atHost('hades');
-        $date    = new Timestamp('2018-02-14T10:11:12.131');
-        $utcDate = (clone $date)->setTimezone(new \DateTimeZone('UTC'));
-        $log     = new Log('blabla');
-        $message = ErrorMessage::fromLog($log, $date);
+        $agent         = new VersionedName('thunderjaw', '1.0');
+        $service       = new Service($agent, 'rockbreaker');
+        $process       = new Process(213);
+        $system        = (new System())->atHost('hades');
+        $date          = new Timestamp('2018-02-14T10:11:12.131');
+        $utcDate       = (clone $date)->setTimezone(new \DateTimeZone('UTC'));
+        $log           = new Log('blabla');
+        $transactionId = Uuid::uuid4();
+        $message       = ErrorMessage::fromLog($log, $date)
+            ->correlatedToTransactionId($transactionId);
 
         $actual = (new Error($service, $message))
             ->inProcess($process)
@@ -45,6 +48,7 @@ final class ErrorTest extends TestCase
                 [
                     'log' => ['message' => 'blabla'],
                     'timestamp' => $utcDate->format('Y-m-d\TH:i:s.u\Z'),
+                    'transaction' => ['id' => $transactionId->toString()],
                 ],
             ],
         ];

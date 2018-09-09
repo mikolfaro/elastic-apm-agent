@@ -200,7 +200,7 @@ final class ErrorMiddlewareTest extends TestCase
             ],
             'error transaction correlation' => [
                 function (array $data): bool {
-                    return strtoupper($data['errors'][0]['transaction']) === self::TRANSACTION_ID;
+                    return strtoupper($data['errors'][0]['transaction']['id']) === self::TRANSACTION_ID;
                 },
             ],
         ];

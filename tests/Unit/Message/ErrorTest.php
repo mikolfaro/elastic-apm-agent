@@ -39,7 +39,7 @@ final class ErrorTest extends TestCase
             'id' => $id->toString(),
             'log' => ['message' => 'bloo'],
             'timestamp' => '2018-01-01T10:11:12.131000Z',
-            'transaction' => $transactionId->toString(),
+            'transaction' => ['id' => $transactionId->toString()],
         ];
 
         self::assertEquals($expected, $actual);
